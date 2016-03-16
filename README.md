@@ -8,7 +8,7 @@ This component is used to register a new vehicle by an auto registration officer
 
 ## Auto Transaction
 
-- [ ] 
+- [x] 
 This component is used to complete an auto transaction. Your program shall allow the officer to enter all necessary information to complete this task, including, but not limiting to, the details about the seller, the buyer, the date, and the price. The component shall also remove the relevant information of the previous ownership.
 
 ## Driver Licence Registration
