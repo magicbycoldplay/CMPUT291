@@ -12,9 +12,6 @@ def main():
     drop_views_and_tables()
     create_views_and_tables()
     
-    drop_views_and_tables()
-    create_views_and_tables()
-    
     while True:
         #Get user to pick an option
         print("--------------------------------------------")
@@ -34,19 +31,14 @@ def main():
                 pass
 
         if option == 1:
-            #TO DO
             register_vehicle()
         elif option == 2:
-            #TO DO
             auto_transaction()
         elif option == 3:
-            #TO DO
             register_license()
         elif option == 4:
-            #TO DO
             record_violation()
         elif option == 5:
-            #TO DO
             search()
         else:
             print("--------------------------------------------")
@@ -305,6 +297,7 @@ def setup_oracle_connection():
 
 
 def auto_transaction():
+    ''' Completes an auto transaction '''
     # Connect to database
     try:
         connection = cx_Oracle.connect(CONNECT_INFO)
@@ -495,6 +488,7 @@ def auto_transaction():
                 
 
 def register_vehicle():
+    ''' Registers a vehicle '''
     # Connect to database
     try:
         connection = cx_Oracle.connect(CONNECT_INFO)
@@ -535,9 +529,8 @@ def register_vehicle():
                         model = input('Please enter the model of the vehicle: ').strip()
                         year = input('Please enter the year of the vehicle: ').strip()
                         color = input('Please enter the serial number of the vehicle: ').strip()
-                        type_id = input('Please enter the serial number of the vehicle: ').strip()
-                        
-                        #UNSURE ABOUT TYPE_ID BEING CONVERTED TO AN INT // do we even need type_id?
+                        # FORMATTING MAY BE WEIRD
+                        type_id = input('TYPES \n 1 - sedan \n 2 - SUV \n 3 - van \n Please enter the type of the vehicle: ').strip()
                         curs.execute("INSERT INTO vehicle VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')".format(serial_no, maker, model, year, color, int(type_id)))
                         connection.commit()
                         found = True
