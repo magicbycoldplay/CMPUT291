@@ -10,26 +10,10 @@ def main():
 
     setup_oracle_connection()
     drop_views_and_tables()
-<<<<<<< HEAD
 	create_views_and_tables()
-    
-    print("----------------------------------------------")
-    print("-- Enter [q] at anytime to exit the program --")
-    print("----------------------------------------------")
-=======
-    create_views_and_tables()
->>>>>>> origin/master
     
     while True:
         #Get user to pick an option
-        print("--------------------------------------------")
-<<<<<<< HEAD
-        print("Enter [1] to register a vehicle")
-        print("Enter [2] to make an auto transaction")
-        print("Enter [3] to register a licence")
-        print("Enter [4] to record a violation ticket")
-        print("Enter [5] to search")
-=======
         print("------------Type 'quit' to quit ------------")
         print("----Type 'menu' to go back to main menu-----")
         print("--------------------------------------------")
@@ -38,10 +22,9 @@ def main():
         print("Enter '3' for register a license")
         print("Enter '4' to record a violation ticket")
         print("Enter '5' to search")
->>>>>>> origin/master
         print("--------------------------------------------")
         option = input('Please pick an option: ')
-        if 'q' in option.lower():
+        if 'quit' in option.lower():
             exit()
         else:
             try:
@@ -541,8 +524,10 @@ def register_vehicle():
         found = False
         while found == False:
             serial_no = input("Please enter the serial number of the vehicle: ").strip()
-            if serial_no == 'q':
+            if serial_no == 'quit':
                 exit()
+            elif serial_no = 'menu':
+                main()
             else:
                 # Look up serial number if it's already registered
                 try:
@@ -579,8 +564,10 @@ def register_vehicle():
         found = False
         while found == False:
             sin = input('Please enter the sin number of the person: ').strip()
-            if sin == 'q':
+            if sin == 'quit':
                 exit()
+            elif sin == 'menu':
+                main()
             else:
                 # Look up serial number if it's already registered
                 try:
@@ -623,8 +610,10 @@ def register_vehicle():
             try:
                 # Primary owner
                 sin = input('Please enter the sin number of the primary owner of the vehicle: ').strip()
-                if sin == 'q':
+                if sin == 'quit':
                     exit()
+                elif sin = 'menu':
+                    main()
                 else:                
                     curs.execute("SELECT name FROM people WHERE sin = '{0}'".format(sin))
                     result = curs.fetchall()
@@ -640,8 +629,10 @@ def register_vehicle():
                     answer = input('Is there a secondary owner for this vehicle? (y/n) ')
                     if answer.lower() == 'y':
                         sin = input('Please enter the sin number of the secondary owner of the vehicle: ').strip()
-                        if sin == 'q':
+                        if sin == 'quit':
                             exit()
+                        elif sin = 'menu':
+                            main()
                         else:
                             curs.execute("SELECT name FROM people WHERE sin = '{0}'".format(sin))
                             result = curs.fetchall()
@@ -1058,13 +1049,9 @@ def record_violation():
         print(sys.stderr, "Oracle code: ", error.code)
         print(sys.stderr, "Oracle message: ", error.message)
         return
-<<<<<<< HEAD
 
     return
 
-
-
-=======
     
 def choice(selection):
     if selection == 'quit':
@@ -1072,7 +1059,6 @@ def choice(selection):
     elif selection == 'menu':
         main()
     return
->>>>>>> origin/master
 
 def search():
 
@@ -1084,8 +1070,10 @@ def search():
         print("Enter [3] to look up a vehicle's history")
         print("-----------------------------------------------------")
         option = input('Please pick an option: ')
-        if 'q' in option.lower():
+        if 'quit' in option.lower():
             exit()
+        elif option = 'menu':
+            main()
         else:
             try:
                 option = int(option)
@@ -1115,14 +1103,17 @@ def people_info():
         return
     
     while True:
+        # Asks user to input a license number or name
         info = input("Please enter a licence # or name: ").strip()
-            if info == 'q':
+            if info == 'quit':
                 exit()
+            elif info = 'menu':
+                main()
             elif info.isalpha():
                 # Checks if it's made up of the alphabet (name)
                 # Looks up a name
                 try:
-                    # Looks up a name
+                    # Looks up if name is in database
                     curs.execute("SELECT name FROM people WHERE name = '{0}'".format(info))
                     result = curs.fetchall()
                 except cx_Oracle.DatabaseError as exception:
@@ -1172,6 +1163,7 @@ def people_info():
                         connection.commit()
                     else:
                         print('Licence number not found')
+                                     
     # Close connection        
     try:
         curs.close()
@@ -1197,8 +1189,10 @@ def people_vrecord():
     
     while True:
         info = input("Please enter a licence # or sin #: ").strip()
-            if info == 'q':
+            if info == 'quit':
                 exit()
+            elif info = 'menu':
+                main()
             else:
                 # Checks if it's a licence 
                 try:
@@ -1249,7 +1243,7 @@ def people_vrecord():
         print(sys.stderr, "Oracle message: ", error.message)
         return
 
-    #return something
+    return
     
 def vehicle_history():
     # Connect to database
@@ -1264,8 +1258,10 @@ def vehicle_history():
     
     while True:
         info = input("Please enter a vehicle serial #: ").strip()
-            if info == 'q':
+            if info == 'quit':
                 exit()
+            elif info = 'menu':
+                main()
             else:
                 # Checks if it's a valid serial number 
                 try:
@@ -1300,7 +1296,7 @@ def vehicle_history():
         print(sys.stderr, "Oracle message: ", error.message)
         return
 
-    #return something
+    return
 
 if __name__ == "__main__":
     main()
