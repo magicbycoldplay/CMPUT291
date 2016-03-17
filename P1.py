@@ -397,7 +397,8 @@ def auto_transaction():
         answer = input("Is the vehicle in the system (y/n): ").lower()
         choice(answer)
         #vehicle in database
-        if answer == 'y':        
+        if answer == 'y':
+            answer = False
             vehicle_id = input('Please enter the serial number of the vehicle: ').strip()
             choice(vehicle_id)
             try:
