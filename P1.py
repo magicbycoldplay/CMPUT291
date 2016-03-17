@@ -1105,16 +1105,47 @@ def people_info():
     while True:
         # Asks user to input a license number or name
         info = input("Please enter a licence # or name: ").strip()
-            if info == 'quit':
-                exit()
-            elif info = 'menu':
-                main()
-            elif info.isalpha():
-                # Checks if it's made up of the alphabet (name)
-                # Looks up a name
+        if info == 'quit':
+            exit()
+        elif info = 'menu':
+            main()
+        elif info.isalpha():
+            # Checks if it's made up of the alphabet (name)
+            # Looks up a name
+            try:
+                # Looks up if name is in database
+                curs.execute("SELECT name FROM people WHERE name = '{0}'".format(info))
+                result = curs.fetchall()
+            except cx_Oracle.DatabaseError as exception:
+                error = exception.args
+                print(sys.stderr, "Oracle code: ", error.code)
+                print(sys.stderr, "Oracle message: ", error.message)
+                return
+
+            if result:
+                # Makes a view
+                curs.execute("CREATE VIEW OR REPLACE VIEW person_info AS
+                             SELECT name, dl.licence_no, addr, birthday,
+                             class, dc.description, expiring_date
+                             FROM people p, drive_licence dl, driving_condition dc, restriction r
+                             WHERE p.sin = dl.sin AND dc.c_id = r.r_id AND r.licence_no = drive_licence")
+                connection.commit()
+            else:
+                print('Person not found')
+
+        # If not a name, then it might be a licence number        
+        else 
+            try:
+                info = int(info)
+            except ValueError as ve:
+                pass 
+
+            # Checks if it's a numeric number (licence_no)
+            if info.isnumeric():    
                 try:
-                    # Looks up if name is in database
-                    curs.execute("SELECT name FROM people WHERE name = '{0}'".format(info))
+                    # Looks up a name
+                    info = str(info)
+                    curs.execute("SELECT licence_no FROM drive_licence WHERE licence_no = '{0}'".format(info))
                     result = curs.fetchall()
                 except cx_Oracle.DatabaseError as exception:
                     error = exception.args
@@ -1125,45 +1156,14 @@ def people_info():
                 if result:
                     # Makes a view
                     curs.execute("CREATE VIEW OR REPLACE VIEW person_info AS
-                                 SELECT name, dl.licence_no, addr, birthday,
-                                 class, dc.description, expiring_date
-                                 FROM people p, drive_licence dl, driving_condition dc, restriction r
-                                 WHERE p.sin = dl.sin AND dc.c_id = r.r_id AND r.licence_no = drive_licence")
+                             SELECT name, dl.licence_no, addr, birthday,
+                             class, dc.description, expiring_date
+                             FROM people p, drive_licence dl, driving_condition dc, restriction r
+                             WHERE p.sin = dl.sin AND dc.c_id = r.r_id AND r.licence_no = drive_licence")
                     connection.commit()
                 else:
-                    print('Person not found')
-                    
-            # If not a name, then it might be a licence number        
-            else 
-                try:
-                    info = int(info)
-                except ValueError as ve:
-                    pass 
-                
-                # Checks if it's a numeric number (licence_no)
-                if info.isnumeric():    
-                    try:
-                        # Looks up a name
-                        info = str(info)
-                        curs.execute("SELECT licence_no FROM drive_licence WHERE licence_no = '{0}'".format(info))
-                        result = curs.fetchall()
-                    except cx_Oracle.DatabaseError as exception:
-                        error = exception.args
-                        print(sys.stderr, "Oracle code: ", error.code)
-                        print(sys.stderr, "Oracle message: ", error.message)
-                        return
+                    print('Licence number not found')
 
-                    if result:
-                        # Makes a view
-                        curs.execute("CREATE VIEW OR REPLACE VIEW person_info AS
-                                 SELECT name, dl.licence_no, addr, birthday,
-                                 class, dc.description, expiring_date
-                                 FROM people p, drive_licence dl, driving_condition dc, restriction r
-                                 WHERE p.sin = dl.sin AND dc.c_id = r.r_id AND r.licence_no = drive_licence")
-                        connection.commit()
-                    else:
-                        print('Licence number not found')
-                                     
     # Close connection        
     try:
         curs.close()
@@ -1189,15 +1189,33 @@ def people_vrecord():
     
     while True:
         info = input("Please enter a licence # or sin #: ").strip()
-            if info == 'quit':
-                exit()
-            elif info = 'menu':
-                main()
+        if info == 'quit':
+            exit()
+        elif info = 'menu':
+            main()
+        else:
+            # Checks if it's a licence 
+            try:
+                # Looks up a licence number
+                curs.execute("SELECT licence_no FROM drive_licence WHERE licence_no = '{0}'".format(info))
+                result = curs.fetchall()
+            except cx_Oracle.DatabaseError as exception:
+                error = exception.args
+                print(sys.stderr, "Oracle code: ", error.code)
+                print(sys.stderr, "Oracle message: ", error.message)
+                return
+
+            if result:
+                # Makes a view
+                curs.execute("CREATE VIEW OR REPLACE VIEW people_violation_record AS
+                             SELECT name, ticket_no, tt.vtype, t.vdate, place t.description,
+                             FROM people p, ticket t, ticket_type tt, vehicle v, drive_licence dl
+                             WHERE p.sin = t.violator_no AND v.serial_no = t.vehicle_id AND tt.vtype = t.vtype dl.sin = p.sin AND t.violator_no = dl.sin AND '{0}' = dl.licence_no".format(info))
+                connection.commit()
             else:
-                # Checks if it's a licence 
                 try:
-                    # Looks up a licence number
-                    curs.execute("SELECT licence_no FROM drive_licence WHERE licence_no = '{0}'".format(info))
+                    # Looks up a sin number
+                    curs.execute("SELECT sin FROM people WHERE sin = '{0}'".format(info))
                     result = curs.fetchall()
                 except cx_Oracle.DatabaseError as exception:
                     error = exception.args
@@ -1208,30 +1226,12 @@ def people_vrecord():
                 if result:
                     # Makes a view
                     curs.execute("CREATE VIEW OR REPLACE VIEW people_violation_record AS
-                                 SELECT name, ticket_no, tt.vtype, t.vdate, place t.description,
-                                 FROM people p, ticket t, ticket_type tt, vehicle v, drive_licence dl
-                                 WHERE p.sin = t.violator_no AND v.serial_no = t.vehicle_id AND tt.vtype = t.vtype dl.sin = p.sin AND t.violator_no = dl.sin AND '{0}' = dl.licence_no".format(info))
+                             SELECT name, ticket_no, tt.vtype, t.vdate, place t.description,
+                             FROM people p, ticket t, ticket_type tt, vehicle v
+                             WHERE p.sin = t.violator_no AND v.serial_no = t.vehicle_id AND tt.vtype = t.vtype AND '{0}' = p.sin AND '{0}' = t.violator_no".format(info))
                     connection.commit()
                 else:
-                    try:
-                        # Looks up a sin number
-                        curs.execute("SELECT sin FROM people WHERE sin = '{0}'".format(info))
-                        result = curs.fetchall()
-                    except cx_Oracle.DatabaseError as exception:
-                        error = exception.args
-                        print(sys.stderr, "Oracle code: ", error.code)
-                        print(sys.stderr, "Oracle message: ", error.message)
-                        return
-
-                    if result:
-                        # Makes a view
-                        curs.execute("CREATE VIEW OR REPLACE VIEW people_violation_record AS
-                                 SELECT name, ticket_no, tt.vtype, t.vdate, place t.description,
-                                 FROM people p, ticket t, ticket_type tt, vehicle v
-                                 WHERE p.sin = t.violator_no AND v.serial_no = t.vehicle_id AND tt.vtype = t.vtype AND '{0}' = p.sin AND '{0}' = t.violator_no".format(info))
-                        connection.commit()
-                    else:
-                        print('Licence number and sin not found')
+                    print('Licence number and sin not found')
         
     # Close connection        
     try:
@@ -1258,32 +1258,32 @@ def vehicle_history():
     
     while True:
         info = input("Please enter a vehicle serial #: ").strip()
-            if info == 'quit':
-                exit()
-            elif info = 'menu':
-                main()
-            else:
-                # Checks if it's a valid serial number 
-                try:
-                    curs.execute("SELECT serial_no FROM vehicle WHERE serial_no = '{0}'".format(info))
-                    result = curs.fetchall()
-                except cx_Oracle.DatabaseError as exception:
-                    error = exception.args
-                    print(sys.stderr, "Oracle code: ", error.code)
-                    print(sys.stderr, "Oracle message: ", error.message)
-                    return
+        if info == 'quit':
+            exit()
+        elif info = 'menu':
+            main()
+        else:
+            # Checks if it's a valid serial number 
+            try:
+                curs.execute("SELECT serial_no FROM vehicle WHERE serial_no = '{0}'".format(info))
+                result = curs.fetchall()
+            except cx_Oracle.DatabaseError as exception:
+                error = exception.args
+                print(sys.stderr, "Oracle code: ", error.code)
+                print(sys.stderr, "Oracle message: ", error.message)
+                return
 
-                # If there is a valid serial number
-                if result:
-                    # Makes a view
-                    curs.execute("CREATE VIEW OR REPLACE VIEW vehicle_history AS
-                                 SELECT serial_no, COUNT(a.vehicle_id), AVG(a.price), COUNT() AS VehicleTransfer, AveragePrice, Violations
-                                 FROM vehicle v, autosale a, ticket t
-                                 WHERE v.serial_no = a.vehicle_id AND v.serial_no = t.vehicle_id AND a.vehicle_id = t.vehicle_id AND '{0}' = v.serial_no AND '{0}' = a.vehicle_id AND '{0}' = t.vehicle_id".format(info))
-                    connection.commit()
-                else:
-                    print('Vehicle is not found')
-        
+            # If there is a valid serial number
+            if result:
+                # Makes a view
+                curs.execute("CREATE VIEW OR REPLACE VIEW vehicle_history AS
+                             SELECT serial_no, COUNT(a.vehicle_id), AVG(a.price), COUNT() AS VehicleTransfer, AveragePrice, Violations
+                             FROM vehicle v, autosale a, ticket t
+                             WHERE v.serial_no = a.vehicle_id AND v.serial_no = t.vehicle_id AND a.vehicle_id = t.vehicle_id AND '{0}' = v.serial_no AND '{0}' = a.vehicle_id AND '{0}' = t.vehicle_id".format(info))
+                connection.commit()
+            else:
+                print('Vehicle is not found')
+
 
         
     # Close connection        
