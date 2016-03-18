@@ -17,11 +17,11 @@ def main():
         print("------------Type 'quit' to quit ------------")
         print("----Type 'menu' to go back to main menu-----")
         print("--------------------------------------------")
-        print("Enter '1' to register a vehicle")
-        print("Enter '2' to make an auto transaction")
-        print("Enter '3' for register a license")
-        print("Enter '4' to record a violation ticket")
-        print("Enter '5' to search")
+        print("Enter [1] to register a vehicle")
+        print("Enter [2] to make an auto transaction")
+        print("Enter [3] for register a license")
+        print("Enter [4] to record a violation ticket")
+        print("Enter [5] to search")
         print("--------------------------------------------")
         option = input('Please pick an option: ')
         if 'quit' in option.lower():
@@ -1115,7 +1115,7 @@ def people_info():
             # Looks up a name
             try:
                 # Looks up if name is in database
-                curs.execute("SELECT name FROM people WHERE name = '{0}'".format(info))
+                curs.execute("""SELECT name FROM people WHERE name = '{0}'""".format(info))
                 result = curs.fetchall()
             except cx_Oracle.DatabaseError as exception:
                 error = exception.args
@@ -1124,25 +1124,43 @@ def people_info():
                 return
 
             if result:
-                # Makes a view TO DO doesn't return anything
-                curs.execute("""SELECT name, dl.licence_no, addr, birthday,
-                                       class, dc.description, expiring_date
-                                FROM people p, drive_licence dl, driving_condition dc, restriction r
-                                WHERE p.sin = dl.sin 
-                                AND dc.c_id = r.r_id 
-                                AND r.licence_no = dl.licence_no 
-                                AND UPPER(p.name) LIKE '%{0}%'
-                                """.format(info))
+                # Query 
+                curs.execute("""SELECT p.name, dl.licence_no, p.addr, p.birthday, dl.class,
+                                dc.description, dl.expiring_date
+                                FROM people p, drive_licence dl, 
+                                driving_condition dc, restriction r
+                                WHERE p.sin = dl.sin AND
+                                      dl.licence_no = r.licence_no AND
+                                      dc.c_id = r.r_id AND
+                                      p.name = '{0}'""".format(info))
                 result = curs.fetchall()
-                print(result)
-    
-                # Display view
-                print('Name             |License Number |Address          |Birthday  |Class  |Description            |Expiring Date')
-                for indx, row in enumerate(result):
-                    name, license_no, addr, bday, clas, description, exdate = row
-                    print('{0:<15}|{1:<15}|{2:<20}|{3:<10}|{4:<5}|{5:<20}|{6:<10}'.format(name, license_no, addr, bday, clas, description, exdate))
-                    
-                valid = True
+                
+                if result:
+                    # Display view
+                    print('Name           |License Number |Address                    |Birthday  |Class     |Description         |Expiring Date')
+                    for indx, row in enumerate(result):
+                        name, license_no, addr, bday, clas, description, exdate = row
+                        bday = bday.strftime('%Y-%m-%d')
+                        exdate = exdate.strftime('%Y-%m-%d')
+                        print('{0:<15}|{1:<15}|{2:<25}|{3:<10}|{4:<15}|{5:<20}|{6:<10}'.format(name, license_no, addr, bday, clas, description, exdate))      
+                    valid = True
+                
+                else:
+                    print('Person does not have a licence')
+                    curs.execute("""SELECT p.name, p.addr, p.birthday
+                                    FROM people p
+                                    WHERE p.name = '{0}'""".format(info))
+                    result = curs.fetchall()
+                                    
+                    if result:
+                        # Display view
+                        print('Name           |Address                       |Birthday  ')
+                        for indx, row in enumerate(result):
+                            name, addr, bday = row
+                            bday = bday.strftime('%Y-%m-%d')
+                            print('{0:<15}|{1:<30}|{2:<25}'.format(name, addr, bday,))      
+                        valid = True                    
+                                         
             else:
                 print('Person not found')
 
@@ -1177,14 +1195,14 @@ def people_info():
                                 AND dl.licence_no = '{0}'
                                 """.format(info))
                 result = curs.fetchall()
-                print(result)
                 
-                #Displays a view FORMAT
-                print('Name             |License Number |Address          |Birthday  |Class  |Description            |Expiring Date')
+                #Displays a view
+                print('Name           |License Number |Address                    |Birthday  |Class  |Description         |Expiring Date')
                 for indx, row in enumerate(result):
                     name, license_no, addr, bday, clas, description, exdate = row
-                    print('{0:<15}|{1:<15}|{2:<20}|{3:<10}|{4:<5}|{5:<20}|{6:<10}'.format(name, license_no, addr, bday, clas, description, exdate))                
-                
+                    bday = bday.strftime('%Y-%m-%d')
+                    exdate = exdate.strftime('%Y-%m-%d')
+                    print('{0:<15}|{1:<15}|{2:<25}|{3:<10}|{4:<5}|{5:<20}|{6:<10}'.format(name, license_no, addr, bday, clas, description, exdate))                
                 valid = True
             else:
                 print('Licence number not found')
@@ -1242,13 +1260,20 @@ def people_vrecord():
                                 AND t.violator_no = dl.sin 
                                 AND '{0}' = dl.licence_no
                                 """.format(info))
-                # Display view TO DO
-                print('Name             |Ticket Number |Ticket Type|Vehicle       |License Number')
-                for indx, row in enumerate(result):
-                    name, ticketnum, tickettype, ticketdate, place, descriptions = row
-                    print('{0}|{1}|{2}|{3}|{4}|{5}'.format(name, ticketnum, tickettype, ticketdate, place, descriptions))
-                    
-                valid = True
+                result = curs.fetchall()
+                
+                if result:
+                    # Display view
+                    print('Name           |Ticket Number  |Ticket Type|Date      |Place          |Description')
+                    for indx, row in enumerate(result):
+                        name, ticketnum, tickettype, ticketdate, place, descriptions = row
+                        ticketdate = ticketdate.strftime('%Y-%m-%d')
+                        print('{0:<15}|{1:<15}|{2:<11}|{3:<15}|{4:<15}|{5:<20}'.format(name, ticketnum, tickettype, ticketdate, place, descriptions))
+                        
+                    valid = True
+                else:
+                    print('Person does not have any tickets')
+                       
             else:
                 try:
                     # Looks up a sin number
@@ -1273,12 +1298,15 @@ def people_vrecord():
                                     AND '{0}' = t.violator_no
                                     AND '{0}' = dl.sin
                                     """.format(info))
+                    result = curs.fetchall()                    
+                    
                     # Display view TO DO
-                    print('Name             |Ticket Number |Ticket Type|Vehicle       |License Number')
+                    print('Name           |Ticket Number  |Ticket Type|Date      |Place          |Description')
                     for indx, row in enumerate(result):
                         name, ticketnum, tickettype, ticketdate, place, descriptions = row
-                        print('{0}|{1}|{2}|{3}|{4}|{5}'.format(name, ticketnum, tickettype, ticketdate, place, descriptions))
-                        valid = True
+                        ticketdate = ticketdate.strftime('%Y-%m-%d')
+                        print('{0:<15}|{1:<15}|{2:<11}|{3:<10}|{4:<15}|{5:<20}'.format(name, ticketnum, tickettype, ticketdate, place, descriptions))
+                    valid = True
                 else:
                     print('Licence number and sin not found')
         
@@ -1325,25 +1353,52 @@ def vehicle_history():
 
             # If there is a valid serial number
             if result:
-                # Query
-                curs.execute("""SELECT v.serial_no, COUNT(a.vehicle_id), AVG(a.price), 
-                                COUNT(t.ticket_no)
-                                FROM vehicle v, auto_sale a, ticket t
-                                WHERE v.serial_no = a.vehicle_id
-                                AND v.serial_no = t.vehicle_id
-                                AND a.vehicle_id = t.vehicle_id
-                                AND '{0}' = v.serial_no
-                                AND '{0}' = a.vehicle_id
-                                AND '{0}' = t.vehicle_id
-                                GROUP BY v.serial_no""".format(info))
+                # Check if the vehicle had any violations
+                curs.execute("""SELECT v.serial_no FROM vehicle v, ticket t WHERE v.serial_no = t.vehicle_id AND '{0}' = v.serial_no AND '{0}' = t.vehicle_id""".format(info))
+                result = curs.fetchall()
                 
-                # Display view
-                print('Serial Number        |Owner change |Average price  |Number of violations')
-                for indx, row in enumerate(result):
-                    serial_num, owner_change, average_price, violation_num = row
-                    print('{0}|{1}|{2}|{3}'.format(serial_num, owner_change, average_price, violation_num))
+                # If the vehicle has any violations
+                if result:
+                    # Query
+                    curs.execute("""SELECT v.serial_no, COUNT(a.vehicle_id), AVG(a.price), 
+                                    COUNT(t.ticket_no)
+                                    FROM vehicle v, auto_sale a, ticket t
+                                    WHERE v.serial_no = a.vehicle_id
+                                    AND v.serial_no = t.vehicle_id
+                                    AND a.vehicle_id = t.vehicle_id
+                                    AND '{0}' = v.serial_no
+                                    AND '{0}' = a.vehicle_id
+                                    AND '{0}' = t.vehicle_id
+                                    GROUP BY v.serial_no""".format(info))
+                    result = curs.fetchall()
                     
-                valid = True
+                    if result:
+                        # Display view
+                        print('Serial Number  |Owner change|Average price  |Number of violations')
+                        for indx, row in enumerate(result):
+                            serial_num, owner_change, average_price, violation_num = row
+                            print('{0}|{1:<12}|{2:<15}|{3:<5}'.format(serial_num, owner_change, average_price, violation_num))
+                            
+                        valid = True
+                else:
+                    print('Vehicle does not have any violation records')
+                    curs.execute("""SELECT v.serial_no, COUNT(a.vehicle_id), AVG(a.price)
+                                    FROM vehicle v, auto_sale a
+                                    WHERE v.serial_no = a.vehicle_id
+                                    AND '{0}' = v.serial_no
+                                    AND '{0}' = a.vehicle_id
+                                    GROUP BY v.serial_no""".format(info))
+                    result = curs.fetchall()
+                                        
+                    if result:
+                        # Display view
+                        print('Serial Number  |Owner change|Average price  ')
+                        for indx, row in enumerate(result):
+                            serial_num, owner_change, average_price = row
+                            print('{0}|{1:<12}|{2:<15}'.format(serial_num, owner_change, average_price))
+                            
+                        valid = True                    
+        
             else:
                 print('Vehicle is not found')
 
