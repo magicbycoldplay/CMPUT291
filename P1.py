@@ -9,8 +9,8 @@ import datetime
 def main():
 
     setup_oracle_connection()
-    drop_views_and_tables()
-    create_views_and_tables()
+    #drop_views_and_tables()
+    #create_views_and_tables()
     
     while True:
         #Get user to pick an option
@@ -269,10 +269,8 @@ def setup_oracle_connection():
 
     while True:
         # Get account info from user
-        #ORACLE_USER = input('Enter oracle user name: ')
-        #ORACLE_PSWD = getpass.getpass('Enter oracle password: ')
-        ORACLE_USER = 'schraa'
-        ORACLE_PSWD = 'Monkeybolt1'
+        ORACLE_USER = input('Enter oracle user name: ')
+        ORACLE_PSWD = getpass.getpass('Enter oracle password: ')
         CONNECT_INFO = '{0}/{1}@gwynne.cs.ualberta.ca:1521/CRS'.format(ORACLE_USER, ORACLE_PSWD)
         
         # Connect to database
@@ -334,7 +332,7 @@ def auto_transaction():
             seller_id = input('Please enter the seller SIN: ').strip()
             choice(seller_id)
             try:
-                curs.execute("SELECT sin FROM people WHERE sin = '{0}'".format(seller_id))
+                curs.execute("SELECT sin FROM people WHERE upper(sin) = '{0}'".format(seller_id.upper()))
                 seller_result = curs.fetchall()
             except cx_Oracle.DatabaseError as exception:
                 error = exception.args
@@ -366,7 +364,7 @@ def auto_transaction():
             buyer_id = input('Please enter the buyer SIN: ').strip()
             choice(buyer_id)
             try:
-                curs.execute("SELECT sin FROM people WHERE sin = '{0}'".format(buyer_id))
+                curs.execute("SELECT sin FROM people WHERE upper(sin) = '{0}'".format(buyer_id.upper()))
                 buyer_result = curs.fetchall()
             except cx_Oracle.DatabaseError as exception:
                 error = exception.args
@@ -399,7 +397,7 @@ def auto_transaction():
             vehicle_id = input('Please enter the serial number of the vehicle: ').strip()
             choice(vehicle_id)
             try:
-                curs.execute("SELECT serial_no FROM vehicle WHERE serial_no = '{0}'".format(vehicle_id))
+                curs.execute("SELECT serial_no FROM vehicle WHERE upper(serial_no) = '{0}'".format(vehicle_id.upper()))
                 vehicle_result = curs.fetchall()
             except cx_Oracle.DatabaseError as exception:
                 error = exception.args
@@ -413,7 +411,7 @@ def auto_transaction():
                 
                 #check that the vehicle is owned by the seller
                 try:
-                    curs.execute("SELECT * FROM owner WHERE owner_id = '{0}' AND vehicle_id = '{1}' AND is_primary_owner = 'y'".format(seller_id, vehicle_id))
+                    curs.execute("SELECT * FROM owner WHERE upper(owner_id) = '{0}' AND upper(vehicle_id) = '{1}' AND is_primary_owner = 'y'".format(seller_id.upper(), vehicle_id.upper()))
                     not_owner = curs.fetchall()
                 except cx_Oracle.DatabaseError as exception:
                     error = exception.args
@@ -436,7 +434,7 @@ def auto_transaction():
             while not try_try:
                 vehicle_id = input('Please enter the serial number of the vehicle: ').strip()
                 try:
-                    curs.execute("SELECT serial_no FROM vehicle WHERE serial_no = '{0}'".format(vehicle_id))
+                    curs.execute("SELECT serial_no FROM vehicle WHERE upper(serial_no) = '{0}'".format(vehicle_id.upper()))
                     vehicle_result = curs.fetchall()  
                 except cx_Oracle.DatabaseError as exception:
                     error = exception.args
@@ -496,7 +494,7 @@ def auto_transaction():
         connection.commit()
         #delete the previous owner from ownership
         if not new_vehicle:
-            curs.execute("DELETE FROM owner WHERE vehicle_id = '{0}' AND owner_id <> '{1}' ".format(vehicle_id,buyer_id))
+            curs.execute("DELETE FROM owner WHERE upper(vehicle_id) = '{0}' AND upper(owner_id) <> '{1}' ".format(vehicle_id.upper(),buyer_id.upper()))
             connection.commit()
     except cx_Oracle.DatabaseError as exception:
         error = exception.args
@@ -538,7 +536,7 @@ def register_vehicle():
         vehicle_id = input('Please enter the serial number of the vehicle: ').strip()
         choice(vehicle_id)
         try:
-            curs.execute("SELECT serial_no FROM vehicle WHERE serial_no = '{0}'".format(vehicle_id))
+            curs.execute("SELECT serial_no FROM vehicle WHERE upper(serial_no) = '{0}'".format(vehicle_id.upper()))
             vehicle_result = curs.fetchall()
         except:
             print('Error')
@@ -578,7 +576,7 @@ def register_vehicle():
             sin = input("Enter the SIN of the person: ")
             choice(sin)
             try:
-                curs.execute("SELECT sin FROM people WHERE sin = '{0}'".format(sin))
+                curs.execute("SELECT sin FROM people WHERE upper(sin) = '{0}'".format(sin.upper()))
                 result = curs.fetchall()
             except:
                 print('Error')
@@ -593,7 +591,7 @@ def register_vehicle():
                 if is_primary_owner == 'y':
                     #check the vehicle doesn't already have a primary owner
                     try:
-                        curs.execute("SELECT owner_id FROM owner WHERE vehicle_id = '{0}' AND is_primary_owner = 'y'".format(vehicle_id))
+                        curs.execute("SELECT owner_id FROM owner WHERE upper(vehicle_id) = '{0}' AND is_primary_owner = 'y'".format(vehicle_id.upper()))
                         owner_result = curs.fetchall()
                     except cx_Oracle.DatabaseError as exception:
                         error = exception.args
@@ -620,7 +618,7 @@ def register_vehicle():
         elif owner == 'n':
             
             try:
-                curs.execute("SELECT owner_id FROM owner WHERE vehicle_id = '{0}' AND is_primary_owner = 'y'".format(vehicle_id))
+                curs.execute("SELECT owner_id FROM owner WHERE upper(vehicle_id) = '{0}' AND is_primary_owner = 'y'".format(vehicle_id.upper()))
                 check_result = curs.fetchall()
             except:
                 error = exception.args
@@ -666,7 +664,7 @@ def add_person():
             sin = input("Enter the person's SIN number: ")
             choice(sin)
             try:
-                curs.execute("SELECT sin FROM people WHERE sin = '{0}'".format(sin))
+                curs.execute("SELECT sin FROM people WHERE upper(sin) = '{0}'".format(sin.upper()))
                 sin_result1 = curs.fetchall()
             except cx_Oracle.DatabaseError as exception:
                 error = exception.args
@@ -761,7 +759,7 @@ def register_licence():
             sin = input("Enter the person's SIN: ")
             choice(sin)
             try:
-                curs.execute("SELECT sin FROM people WHERE sin = '{0}'".format(sin))
+                curs.execute("SELECT sin FROM people WHERE upper(sin) = '{0}'".format(sin.upper()))
                 sin_result = curs.fetchall()
             except cx_Oracle.DatabaseError as exception:
                 error = exception.args
@@ -771,7 +769,7 @@ def register_licence():
             if sin_result:
                 #check to see if person already has a licence
                 try:
-                    curs.execute("SELECT sin FROM drive_licence WHERE sin = '{0}'".format(sin))
+                    curs.execute("SELECT sin FROM drive_licence WHERE upper(sin) = '{0}'".format(sin.upper()))
                     already_has = curs.fetchall()
                 except cx_Oracle.DatabaseError as exception:
                     error = exception.args
@@ -801,7 +799,7 @@ def register_licence():
         licence_no = input("Enter the licence number: ")
         choice(licence_no)
         try:
-            curs.execute("SELECT licence_no FROM drive_licence WHERE licence_no = '{0}'".format(licence_no))
+            curs.execute("SELECT licence_no FROM drive_licence WHERE upper(licence_no) = '{0}'".format(licence_no.upper()))
             licence_result = curs.fetchall()
         except cx_Oracle.DatabaseError as exception:
             error = exception.args
@@ -877,7 +875,7 @@ def record_violation():
         choice(office_no)
         #make sure the officer is in the system
         try:
-            curs.execute("SELECT sin FROM people WHERE sin = '{0}'".format(office_no))
+            curs.execute("SELECT sin FROM people WHERE upper(sin) = '{0}'".format(office_no.upper()))
             officer_result = curs.fetchall()
         except cx_Oracle.DatabaseError as exception:
             error = exception.args
@@ -897,7 +895,7 @@ def record_violation():
         choice(vehicle_id)
         #check to see if vehicle is in the system
         try:
-            curs.execute("SELECT serial_no FROM vehicle WHERE serial_no = '{0}'".format(vehicle_id))
+            curs.execute("SELECT serial_no FROM vehicle WHERE upper(serial_no) = '{0}'".format(vehicle_id.upper()))
             vehicle_result = curs.fetchall()
         except cx_Oracle.DatabaseError as exception:
             error = exception.args
@@ -919,7 +917,7 @@ def record_violation():
             input_correct = True
             #get primary owner of vehicle
             try:
-                curs.execute("SELECT owner_id FROM owner WHERE vehicle_id = '{0}' AND is_primary_owner = 'y'".format(vehicle_id))
+                curs.execute("SELECT owner_id FROM owner WHERE upper(vehicle_id) = '{0}' AND is_primary_owner = 'y'".format(vehicle_id.upper()))
                 violator_no = str(curs.fetchall())
                 violator_no = violator_no[3:-4]
             except cx_Oracle.DatabaseError as exception:
@@ -935,7 +933,7 @@ def record_violation():
                 violator_no = input("Enter the violator number: ")
                 choice(violator_no)
                 try:
-                    curs.execute("SELECT sin FROM people WHERE sin = '{0}'".format(violator_no))
+                    curs.execute("SELECT sin FROM people WHERE upper(sin) = '{0}'".format(violator_no.upper()))
                     violator_result = curs.fetchall()
                 except cx_Oracle.DatabaseError as exception:
                     error = exception.args
@@ -966,7 +964,7 @@ def record_violation():
                 print('')            
         #check that ticket number hasn't already been used
         try:
-            curs.execute("SELECT * FROM ticket WHERE ticket_no = '{0}'".format(ticket_no))
+            curs.execute("SELECT * FROM ticket WHERE upper(ticket_no) = '{0}'".format(ticket_no.upper()))
             ticket_result = curs.fetchall()
         except cx_Oracle.DatabaseError as exception:
             error = exception.args
@@ -1098,7 +1096,7 @@ def people_info():
             # Looks up a name
             try:
                 # Looks up if name is in database
-                curs.execute("""SELECT name FROM people WHERE name = '{0}'""".format(info))
+                curs.execute("""SELECT name FROM people WHERE upper(name) = '{0}'""".format(info.upper()))
                 result = curs.fetchall()
             except cx_Oracle.DatabaseError as exception:
                 error = exception.args
@@ -1115,7 +1113,7 @@ def people_info():
                                 WHERE p.sin = dl.sin AND
                                       dl.licence_no = r.licence_no AND
                                       dc.c_id = r.r_id AND
-                                      p.name = '{0}'""".format(info))
+                                      upper(p.name) = '{0}'""".format(info.upper()))
                 result = curs.fetchall()
                 
                 if result:
@@ -1132,7 +1130,7 @@ def people_info():
                     print('Person does not have a licence')
                     curs.execute("""SELECT p.name, p.addr, p.birthday
                                     FROM people p
-                                    WHERE p.name = '{0}'""".format(info))
+                                    WHERE upper(p.name) = '{0}'""".format(info.upper()))
                     result = curs.fetchall()
                                     
                     if result:
@@ -1158,7 +1156,7 @@ def people_info():
             try:
                 # Looks up a name
                 info = str(info)
-                curs.execute("SELECT licence_no FROM drive_licence WHERE licence_no = '{0}'".format(info))
+                curs.execute("SELECT licence_no FROM drive_licence WHERE upper(licence_no) = '{0}'".format(info.upper()))
                 result = curs.fetchall()
             except cx_Oracle.DatabaseError as exception:
                 error = exception.args
@@ -1173,10 +1171,10 @@ def people_info():
                                 FROM people p, drive_licence dl, driving_condition dc, restriction r
                                 WHERE p.sin = dl.sin 
                                 AND dc.c_id = r.r_id 
-                                AND r.licence_no = dl.licence_no 
-                                AND r.licence_no = '{0}'
-                                AND dl.licence_no = '{0}'
-                                """.format(info))
+                                AND upper(r.licence_no) = upper(dl.licence_no) 
+                                AND upper(r.licence_no) = '{0}'
+                                AND upper(dl.licence_no) = '{0}'
+                                """.format(info.upper()))
                 result = curs.fetchall()
                 
                 #Displays a view
@@ -1224,7 +1222,7 @@ def people_vrecord():
             # Checks if it's a licence 
             try:
                 # Looks up a licence number
-                curs.execute("SELECT licence_no FROM drive_licence WHERE licence_no = '{0}'".format(info))
+                curs.execute("SELECT licence_no FROM drive_licence WHERE upper(licence_no) = '{0}'".format(info.upper()))
                 result = curs.fetchall()
             except cx_Oracle.DatabaseError as exception:
                 error = exception.args
@@ -1241,8 +1239,8 @@ def people_vrecord():
                                 AND tt.vtype = t.vtype 
                                 AND dl.sin = p.sin 
                                 AND t.violator_no = dl.sin 
-                                AND '{0}' = dl.licence_no
-                                """.format(info))
+                                AND '{0}' = upper(dl.licence_no)
+                                """.format(info.upper()))
                 result = curs.fetchall()
                 
                 if result:
@@ -1260,7 +1258,7 @@ def people_vrecord():
             else:
                 try:
                     # Looks up a sin number
-                    curs.execute("SELECT sin FROM people WHERE sin = '{0}'".format(info))
+                    curs.execute("SELECT sin FROM people WHERE upper(sin) = '{0}'".format(info.upper()))
                     result = curs.fetchall()
                 except cx_Oracle.DatabaseError as exception:
                     error = exception.args
@@ -1275,12 +1273,12 @@ def people_vrecord():
                                     WHERE p.sin = t.violator_no 
                                     AND v.serial_no = t.vehicle_id 
                                     AND tt.vtype = t.vtype 
-                                    AND dl.sin = p.sin 
-                                    AND t.violator_no = dl.sin 
-                                    AND '{0}' = p.sin
-                                    AND '{0}' = t.violator_no
-                                    AND '{0}' = dl.sin
-                                    """.format(info))
+                                    AND upper(dl.sin) = upper(p.sin)
+                                    AND upper(t.violator_no) = upper(dl.sin) 
+                                    AND '{0}' = upper(p.sin)
+                                    AND '{0}' = upper(t.violator_no)
+                                    AND '{0}' = upper(dl.sin)
+                                    """.format(info.upper()))
                     result = curs.fetchall()                    
                     
                     # Display view TO DO
@@ -1326,7 +1324,7 @@ def vehicle_history():
         else:
             # Checks if it's a valid serial number 
             try:
-                curs.execute("SELECT serial_no FROM vehicle WHERE serial_no = '{0}'".format(info))
+                curs.execute("SELECT serial_no FROM vehicle WHERE upper(serial_no) = '{0}'".format(info.upper()))
                 result = curs.fetchall()
             except cx_Oracle.DatabaseError as exception:
                 error = exception.args
@@ -1337,7 +1335,7 @@ def vehicle_history():
             # If there is a valid serial number
             if result:
                 # Check if the vehicle had any violations
-                curs.execute("""SELECT v.serial_no FROM vehicle v, ticket t WHERE v.serial_no = t.vehicle_id AND '{0}' = v.serial_no AND '{0}' = t.vehicle_id""".format(info))
+                curs.execute("""SELECT v.serial_no FROM vehicle v, ticket t WHERE upper(v.serial_no) = upper(t.vehicle_id) AND '{0}' = upper(v.serial_no) AND '{0}' = upper(t.vehicle_id)""".format(info.upper()))
                 result = curs.fetchall()
                 
                 # If the vehicle has any violations
@@ -1346,13 +1344,13 @@ def vehicle_history():
                     curs.execute("""SELECT v.serial_no, COUNT(a.vehicle_id), AVG(a.price), 
                                     COUNT(t.ticket_no)
                                     FROM vehicle v, auto_sale a, ticket t
-                                    WHERE v.serial_no = a.vehicle_id
-                                    AND v.serial_no = t.vehicle_id
-                                    AND a.vehicle_id = t.vehicle_id
-                                    AND '{0}' = v.serial_no
-                                    AND '{0}' = a.vehicle_id
-                                    AND '{0}' = t.vehicle_id
-                                    GROUP BY v.serial_no""".format(info))
+                                    WHERE upper(v.serial_no) = upper(a.vehicle_id)
+                                    AND upper(v.serial_no) = upper(t.vehicle_id)
+                                    AND upper(a.vehicle_id) = upper(t.vehicle_id)
+                                    AND '{0}' = upper(v.serial_no)
+                                    AND '{0}' = upper(a.vehicle_id)
+                                    AND '{0}' = upper(t.vehicle_id)
+                                    GROUP BY v.serial_no""".format(info.upper()))
                     result = curs.fetchall()
                     
                     if result:
@@ -1367,10 +1365,10 @@ def vehicle_history():
                     print('Vehicle does not have any violation records')
                     curs.execute("""SELECT v.serial_no, COUNT(a.vehicle_id), AVG(a.price)
                                     FROM vehicle v, auto_sale a
-                                    WHERE v.serial_no = a.vehicle_id
-                                    AND '{0}' = v.serial_no
-                                    AND '{0}' = a.vehicle_id
-                                    GROUP BY v.serial_no""".format(info))
+                                    WHERE upper(v.serial_no) = upper(a.vehicle_id)
+                                    AND '{0}' = upper(v.serial_no)
+                                    AND '{0}' = upper(a.vehicle_id)
+                                    GROUP BY v.serial_no""".format(info.upper()))
                     result = curs.fetchall()
                                         
                     if result:
