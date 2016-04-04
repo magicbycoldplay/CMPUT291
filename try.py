@@ -17,13 +17,44 @@ def main():
         print("Folder there")
     except:
         os.mkdir("/tmp/schraa")
-        print("Folder created")
+        print("Folder created
+    
+    try:
+        answerFile = open("answers", "w")
+    except:
+        print("Error in opening answer file.")
         
     while(setup(sys.argv[1]) == False):
         print("Not a correct DB type Try Again")
         exit()
-        
-    fill(sys.argv[1])
+    
+    menu()
+    while(True):
+        userIn = input("Choose an option: ")
+        if(userIn == '1'):
+            #Creating and populating the database.
+            fill(sys.argv[1])
+            menu()
+        elif(userIn == '2'):
+            #Retrieving records with a given key.
+            keySearch()
+            menu()
+        elif(userIn == '3'):
+            #Retrieving records with given data.
+            dataSearch()
+            menu()
+        elif(userIn == '4'):
+            #Retrieving data in a range of keys.
+            rangeSearch()
+            menu()
+        elif(userIn == '5'):
+            #Destroying the database.
+            destroyDatabase()
+            menu()
+        elif(userIn == '6'):
+            quit()
+        else:
+            print("I'm sorry, I did not understand your command.")    
     
     print("DONE")
         
@@ -91,6 +122,15 @@ def fill(dbtype):
     print('\b\b\b\b', end="")
     print("100%\nDatabase population complete.") 
     return
+
+def menu():
+    print("**************************************************")
+    print("Enter [1] to create and populate the database")
+    print("Enter [2] to retrieve records with a given key")
+    print("Enter [3] to retrieve records with given data")
+    print("Enter [4] to retrieve records in a given range of keys")
+    print("Enter [5] to destroy the database")
+    print("Enter [6] to quit")
 
 def get_random():
     return random.randint(0, 63)
