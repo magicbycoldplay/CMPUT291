@@ -1,11 +1,25 @@
 # Berkeley DB Example
 # Edited: 21 March 2016  by Kriti
+import time
+import datetime
+import os
+import bsddb3 as bsddb
+import random
+import sys
+import getopt
+import shutil
 __author__ = "Bing Xu"
 __email__ = "bx3@ualberta.ca"
 
 from bsddb3 import db
 import random
 # Make sure you run "mkdir /tmp/my_db" first!
+#shutil.rmtree("/tmp/my_db")
+try:
+    os.mkdir("/tmp/my_db")
+except:
+    pass
+#os.remove("/tmp/my_db/sample_db")
 DA_FILE = "/tmp/my_db/sample_db"
 DB_SIZE = 1000
 SEED = 10000000
