@@ -7,9 +7,14 @@ import getopt
 import shutil
 import bsddb3 as bsddb
 
-
-
 def main():
+    global db
+    global db2
+    global bteedb
+    global hashdb
+    global indexdb
+    global indexdb2 
+    
     try:
         os.stat("/tmp/schraa")
     except:
@@ -19,7 +24,7 @@ def main():
     try:
         answerFile = open("answers", "w")
     except:
-        print("Error in opening answer file.")
+        print("Error")
         
     while(setup(sys.argv[1]) == False):
         print("Not a correct DB type Try Again")
@@ -44,17 +49,56 @@ def main():
             menu()
         elif(userIn == '5'):
             #Destroying the database.
+            destroyDB(False)
             menu()
         elif(userIn == '6'):
-            quit()
+            destroyDB(True)
+            exit()
         else:
             print("I'm sorry, I did not understand your command.")    
     
     print("DONE")
+    
+def destroyDB(quit):
+    global db
+    global db2
+    global bteedb
+    global hashdb
+    global indexdb
+    global indexdb2     
+    try:
+        os.remove(btreedb)
+    except:
+        pass
+    
+    try:
+        os.remove(hashdb)
+    except:
+        pass
+    
+    try:
+        os.remove(indexdb)
+        os.remove(indexdb2)
+    except:
+        pass
+    
+    if (quit == True):
+        try: 
+            shutil.rmtree("/tmp/schraa")
+        except:
+            pass
+        print("DONE")
+        exit()
+    
         
 def setup(dbtype):
     global db
     global db2
+    global bteedb
+    global hashdb
+    global indexdb
+    global indexdb2    
+    
     btreedb = "/tmp/schraa/btree.db"
     hashdb = "/tmp/schraa/hashdb.db"
     indexdb = "/tmp/schraa/indexdb1.db"
@@ -86,10 +130,10 @@ def setup(dbtype):
         return False
        
 def fill(dbtype):
-    DB_SIZE = 10
+
+    DB_SIZE = 1000
     SEED = 10000000 
     random.seed(SEED)
-    print("Populating the database...")
     #code taken from example python3 on eclass
     for index in range(DB_SIZE):
         krng = 64 + get_random()
@@ -110,11 +154,7 @@ def fill(dbtype):
         db[key] = value
         if (dbtype == "indexfile"):
             db2[value] = key
-        # Tracking Database Population Progress
-        print('\b\b\b'+str(int((index/DB_SIZE)*100))+"%",end="")
-    dbPopFlag = True
-    print('\b\b\b\b', end="")
-    print("100%\nDatabase population complete.") 
+    print("Database Full") 
     return
 
 def menu():
