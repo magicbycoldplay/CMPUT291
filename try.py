@@ -14,12 +14,12 @@ def main():
     global hashdb
     global indexdb
     global indexdb2 
+    global answerFile
     
     try:
         os.stat("/tmp/schraa")
     except:
         os.mkdir("/tmp/schraa")
-        print("Folder created")
     
     try:
         answerFile = open("answers", "w")
@@ -36,6 +36,7 @@ def main():
         if(userIn == '1'):
             #Creating and populating the database.
             fill(sys.argv[1])
+            print(db)
             menu()
         elif(userIn == '2'):
             #Retrieving records with a given key.
@@ -89,6 +90,8 @@ def destroyDB(quit):
             pass
         print("DONE")
         exit()
+    else:
+        print("DESTROYED")
     
         
 def setup(dbtype):
@@ -131,7 +134,7 @@ def setup(dbtype):
        
 def fill(dbtype):
 
-    DB_SIZE = 1000
+    DB_SIZE = 1
     SEED = 10000000 
     random.seed(SEED)
     #code taken from example python3 on eclass
@@ -168,8 +171,9 @@ def menu():
     
 def key_search():
     global db
+    global answerFile
     data = list()
-    key = input("Enter a key:")
+    key = input("Enter a key: ")
     ekey = key.encode(encoding="UTF-8")
     begin = datetime.datetime.now()
     try:
