@@ -36,6 +36,7 @@ def main():
         if(userIn == '1'):
             #Creating and populating the database.
             fill(sys.argv[1])
+            print(db)
             menu()
         elif(userIn == '2'):
             #Retrieving records with a given key.
@@ -131,7 +132,7 @@ def setup(dbtype):
        
 def fill(dbtype):
 
-    DB_SIZE = 1000
+    DB_SIZE = 1
     SEED = 10000000 
     random.seed(SEED)
     #code taken from example python3 on eclass
