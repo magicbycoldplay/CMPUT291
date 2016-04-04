@@ -14,12 +14,12 @@ def main():
     global hashdb
     global indexdb
     global indexdb2 
+    global answerFile
     
     try:
         os.stat("/tmp/schraa")
     except:
         os.mkdir("/tmp/schraa")
-        print("Folder created")
     
     try:
         answerFile = open("answers", "w")
@@ -90,6 +90,8 @@ def destroyDB(quit):
             pass
         print("DONE")
         exit()
+    else:
+        print("DESTROYED")
     
         
 def setup(dbtype):
@@ -169,8 +171,9 @@ def menu():
     
 def key_search():
     global db
+    global answerFile
     data = list()
-    key = input("Enter a key:")
+    key = input("Enter a key: ")
     ekey = key.encode(encoding="UTF-8")
     begin = datetime.datetime.now()
     try:
