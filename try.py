@@ -10,14 +10,11 @@ import bsddb3 as bsddb
 
 
 def main():
-      
-    
     try:
         os.stat("/tmp/schraa")
-        print("Folder there")
     except:
         os.mkdir("/tmp/schraa")
-        print("Folder created
+        print("Folder created")
     
     try:
         answerFile = open("answers", "w")
@@ -37,19 +34,16 @@ def main():
             menu()
         elif(userIn == '2'):
             #Retrieving records with a given key.
-            keySearch()
+            key_search()
             menu()
         elif(userIn == '3'):
             #Retrieving records with given data.
-            dataSearch()
             menu()
         elif(userIn == '4'):
             #Retrieving data in a range of keys.
-            rangeSearch()
             menu()
         elif(userIn == '5'):
             #Destroying the database.
-            destroyDatabase()
             menu()
         elif(userIn == '6'):
             quit()
@@ -92,7 +86,7 @@ def setup(dbtype):
         return False
        
 def fill(dbtype):
-    DB_SIZE = 100000
+    DB_SIZE = 10
     SEED = 10000000 
     random.seed(SEED)
     print("Populating the database...")
@@ -124,13 +118,34 @@ def fill(dbtype):
     return
 
 def menu():
-    print("**************************************************")
+    print("*********************************************************")
     print("Enter [1] to create and populate the database")
     print("Enter [2] to retrieve records with a given key")
     print("Enter [3] to retrieve records with given data")
     print("Enter [4] to retrieve records in a given range of keys")
     print("Enter [5] to destroy the database")
     print("Enter [6] to quit")
+    
+def key_search():
+    global db
+    data = list()
+    key = input("Enter a key:")
+    ekey = key.encode(encoding="UTF-8")
+    begin = datetime.datetime.now()
+    try:
+        data.append(db[ekey])
+        records = 1
+    except:
+        records = 0
+    finish = datetime.datetime.now()
+    exectime = finish.microsecond-begin.microsecond
+    print("Number of records retrieved: ", records)
+    print("It took " + str(exectime) + " microseconds to finish.")
+    for pair in data:
+        answerFile.write(key + "\n")
+        answerFile.write(pair.decode() + "\n" + "\n")
+        answerFile.flush()
+    return
 
 def get_random():
     return random.randint(0, 63)
