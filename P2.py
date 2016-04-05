@@ -46,11 +46,11 @@ def main():
             data_search()
             menu()
         elif(userIn == '4'):
-            #Retrieving data in a range of keys.
-            if (sys.argv[1] == hash):
+            #Retrieving data in a range of keys
+            if (sys.argv[1] == "hash"):
                 rangeHash()
             else:
-                rangeBtree
+                rangeBtree()
             menu()
         elif(userIn == '5'):
             #Destroying the database.
@@ -65,6 +65,7 @@ def main():
     print("DONE")
     
 def rangeHash():
+    print("HELLLLLLO")
     global answerFile
     lower = input("Enter the lower bound: ")
     uppper = input("Enter the uppper bound: ")
