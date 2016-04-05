@@ -206,7 +206,7 @@ def setup(dbtype):
        
 def fill(dbtype):
 
-    DB_SIZE = 100
+    DB_SIZE = 100000
     SEED = 10000000 
     random.seed(SEED)
     #code taken from example python3 on eclass
