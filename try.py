@@ -43,6 +43,7 @@ def main():
             menu()
         elif(userIn == '3'):
             #Retrieving records with given data.
+            data_search()
             menu()
         elif(userIn == '4'):
             #Retrieving data in a range of keys.
@@ -246,7 +247,7 @@ def key_search():
     global answerFile
     data = list()
     key = input("Enter a key: ")
-    ekey = key.encode(encoding="UTF-8")
+    ekey = key.encode(encoding = "UTF-8")
     begin = datetime.datetime.now()
     try:
         data.append(db[ekey])
@@ -261,6 +262,47 @@ def key_search():
         answerFile.write(key + "\n")
         answerFile.write(pair.decode() + "\n" + "\n")
         answerFile.flush()
+    return
+
+def data_search():
+    global db
+    global db2
+    global answerFile
+    records = 0
+    searchInput = input("Enter data to search for: ")
+    search = searchInput.encode(encoding = "UTF-8")
+    if sys.argv[1] == "indexfile":
+        data = ""
+        begin = datetime.datetime.now()
+        data = db2[searchInput.encode(encoding = "UTF-8")]
+        # data = result.decode(encoding = "UTF-8")
+        finish = datetime.datetime.now()
+        exectime = finish.microsecond-begin.microsecond
+        if data != "":
+            records = records + 1
+            print("Number of records retrieved: ", records)
+            print("It took " + str(exectime) + " microseconds to finish.")            
+            answerFile.write(data.decode() + "\n")
+            answerFile.write(searchInput + "\n" + "\n")
+            answerFile.flush()
+        else:
+            print("Number of records retrieved: ", records)
+            print("It took " + str(exectime) + " microseconds to finish.")            
+    elif sys.argv[1] != "indexfile":
+        data = list()
+        begin = datetime.datetime.now()
+        for key, value in db.iteritems():
+            if value == search:
+                data.append(key)
+                records = records + 1
+        finish = datetime.datetime.now()
+        exectime = finish.microsecond-begin.microsecond
+        print("Number of records retrieved: ", records)
+        print("It took " + str(exectime) + " microseconds to finish.")
+        for pair in data:
+            answerFile.write(pair.decode() + "\n")
+            answerFile.write(searchInput + "\n" + "\n")
+            answerFile.flush()        
     return
 
 def get_random():
