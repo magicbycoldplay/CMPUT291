@@ -36,7 +36,6 @@ def main():
         if(userIn == '1'):
             #Creating and populating the database.
             fill(sys.argv[1])
-            print(db)
             menu()
         elif(userIn == '2'):
             #Retrieving records with a given key.
@@ -47,6 +46,10 @@ def main():
             menu()
         elif(userIn == '4'):
             #Retrieving data in a range of keys.
+            if (sys.argv[1] == hash):
+                rangeHash()
+            else:
+                rangeBtree
             menu()
         elif(userIn == '5'):
             #Destroying the database.
@@ -59,6 +62,75 @@ def main():
             print("I'm sorry, I did not understand your command.")    
     
     print("DONE")
+    
+def rangeHash():
+    global answerFile
+    lower = input("Enter the lower bound: ")
+    uppper = input("Enter the uppper bound: ")
+    elower = lower.encode(encoding = "UTF-8")
+    eupper = uppper.encode(encoding = "UTF-8")
+    records = 1
+    if elower > eupper:
+        print("Lower greater than upper try again")
+        return 
+    else:
+        searchResults = list()
+        begin = datetime.datetime.now()
+        #sequential hash search
+        for ekey, evalue in db.iteritems():
+            if (ekey > elower and ekey < eupper):
+                searchResults.append(ekey)
+                records += 1
+        finish = datetime.datetime.now()
+        exectime = finish.microsecond-begin.microsecond
+        print("Number of records retrieved: ", records)
+        print("It took " + str(exectime) + " microseconds to finish.")  
+        
+        #write data to a file
+        answerFile.write("RANGE RESULTS")
+        answerFile.write("\n")
+        for data in searchResults:  
+            answerFile.write(db[data].decode() + "\n")
+            answerFile.write(data.decode() + "\n")
+            answerFile.write("-----------------------" + "\n")
+            answerFile.flush()
+        return        
+
+    
+def rangeBtree():
+    global answerFile
+    lower = input("Enter the lower bound: ")
+    uppper = input("Enter the uppper bound: ")
+    elower = lower.encode(encoding = "UTF-8")
+    eupper = uppper.encode(encoding = "UTF-8")
+    if elower > eupper:
+        print("Lower greater than upper try again")
+        return
+    else:
+        #start at the bottom and append all data till you get to the top
+        begin = datetime.datetime.now()
+        lowKey = db.set_location(elower)[0]
+        searchResults = list()
+        searchResults.append(lowKey)
+        records = 1
+        while(db.next()[0] <= eupper):
+            searchResults.append(db.next()[0])
+            records += 1
+        finish = datetime.datetime.now()
+        exectime = finish.microsecond-begin.microsecond
+        print("Number of records retrieved: ", records)
+        print("It took " + str(exectime) + " microseconds to finish.")
+        
+        #write data to a file
+        answerFile.write("RANGE RESULTS")
+        answerFile.write("\n")
+        for data in searchResults:  
+            answerFile.write(db[data].decode() + "\n")
+            answerFile.write(data.decode() + "\n")
+            answerFile.write("-----------------------" + "\n")
+            answerFile.flush()
+        return
+    
     
 def destroyDB(quit):
     global db
@@ -134,7 +206,7 @@ def setup(dbtype):
        
 def fill(dbtype):
 
-    DB_SIZE = 1
+    DB_SIZE = 100
     SEED = 10000000 
     random.seed(SEED)
     #code taken from example python3 on eclass
