@@ -50,7 +50,7 @@ def main():
             if (sys.argv[1] == hash):
                 rangeHash()
             else:
-                rangeBtree
+                rangeBtree()
             menu()
         elif(userIn == '5'):
             #Destroying the database.
@@ -275,14 +275,14 @@ def data_search():
         data = ""
         begin = datetime.datetime.now()
         data = db2[searchInput.encode(encoding = "UTF-8")]
-        # data = result.decode(encoding = "UTF-8")
+        data = data.decode(encoding = "UTF-8")
         finish = datetime.datetime.now()
         exectime = finish.microsecond-begin.microsecond
         if data != "":
             records = records + 1
             print("Number of records retrieved: ", records)
             print("It took " + str(exectime) + " microseconds to finish.")            
-            answerFile.write(data.decode() + "\n")
+            answerFile.write(data + "\n")
             answerFile.write(searchInput + "\n" + "\n")
             answerFile.flush()
         else:
